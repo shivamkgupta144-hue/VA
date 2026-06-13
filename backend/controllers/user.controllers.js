@@ -16,31 +16,52 @@ return res.status(400).json({message:"user not found"})
     }
 }
 
-export const updateAssistant=async (req,res)=>{
+
+export const updateAssistant = async (req, res) => {
    try {
-      const {assistantName,imageUrl}=req.body
-      let assistantImage;
-if(req.file){
-   assistantImage=await uploadOnCloudinary(req.file.path)
-}else{
-   assistantImage=imageUrl
-}
+      console.log("BODY:", req.body);
+      console.log("FILE:", req.file);
+      console.log("USER ID:", req.userId);
 
-const user=await User.findByIdAndUpdate(req.userId,{
-   assistantName,assistantImage
-},{new:true}).select("-password")
-return res.status(200).json(user)
+      const { assistantName, imageUrl } = req.body;
 
-      
+      if (!req.userId) {
+         return res.status(400).json({
+            message: "User ID not found"
+         });
+      }
+
+      let assistantImage = imageUrl || "";
+
+      if (req.file) {
+         assistantImage = await uploadOnCloudinary(req.file.path);
+      }
+
+      const user = await User.findByIdAndUpdate(
+         req.userId,
+         {
+            assistantName,
+            assistantImage,
+         },
+         { new: true }
+      ).select("-password");
+
+      if (!user) {
+         return res.status(404).json({
+            message: "User not found"
+         });
+      }
+
+      return res.status(200).json(user);
+
    } catch (error) {
-   console.log(error);
+      console.error("UPDATE ASSISTANT ERROR:", error);
 
-   return res.status(400).json({
-      message: error.message
-   });
-}
-}
-
+      return res.status(500).json({
+         message: error.message
+      });
+   }
+};
 
 export const askToAssistant=async (req,res)=>{
    try {
