@@ -9,10 +9,14 @@ import userRouter from "./routes/user.routes.js"
 import geminiResponse from "./gemini.js"
 
 
-const app=express()
+const app = express()
+
 app.use(cors({
-    origin:"http://localhost:5173",
-    credentials:true
+    origin: [
+        "http://localhost:5173",
+        "https://va-anrg.onrender.com"
+    ],
+    credentials: true
 }))
 const port=process.env.PORT || 5000
 app.use(express.json())
